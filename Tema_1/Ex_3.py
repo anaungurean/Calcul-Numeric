@@ -3,7 +3,13 @@ import numpy as np
 import math
 
 random_numbers = np.random.uniform(-np.pi/2, np.pi/2, 10000)
-min_errors = {'t_4': 0, 't_5': 0, 't_6': 0, 't_7': 0, 't_8': 0, 't_9': 0}
+errors_t_4 = []
+errors_t_5 = []
+errors_t_6 = []
+errors_t_7 = []
+errors_t_8 = []
+errors_t_9 = []
+
 
 for number in random_numbers:
     t_4 = (105*number - 10*number**3)/(105 - 45*number**2 + number**4)
@@ -15,17 +21,24 @@ for number in random_numbers:
     tangenta = math.tan(number)
     errors = [abs(t_4 - tangenta), abs(t_5 - tangenta), abs(t_6 - tangenta), abs(t_7 - tangenta), abs(t_8 - tangenta), abs(t_9 - tangenta)]
     print('For number:', number, 'the best approximation is:', errors.index(min(errors)) + 4, 'with the error:', min(errors))
-    min_errors['t_' + str(errors.index(min(errors)) + 4)] += 1
+    errors_t_4.append(errors[0])
+    errors_t_5.append(errors[1])
+    errors_t_6.append(errors[2])
+    errors_t_7.append(errors[3])
+    errors_t_8.append(errors[4])
+    errors_t_9.append(errors[5])
 
 
-sorted_errors = sorted(min_errors.items(), key=lambda x: x[1], reverse=True)
+avg_erros = {'t_4': sum(errors_t_4)/len(errors_t_4), 't_5': sum(errors_t_5)/len(errors_t_5), 't_6': sum(errors_t_6)/len(errors_t_6), 't_7': sum(errors_t_7)/len(errors_t_7), 't_8': sum(errors_t_8)/len(errors_t_8), 't_9': sum(errors_t_9)/len(errors_t_9)}
+sorted_avg_errors = sorted(avg_erros.items(), key=lambda x: x[1])
+print('The best approximation is:', sorted_avg_errors[0][0], 'with the average error:', sorted_avg_errors[0][1])
+print('The worst approximation is:', sorted_avg_errors[-1][0], 'with the average error:', sorted_avg_errors[-1][1])
 
 print('Hierarchy of the best approximation:')
 index = 1
-for t, error in sorted_errors:
+for t, error in sorted_avg_errors:
     print(f'{index}. {t} with the minimum error for : {error} times.')
     index += 1
-
 
 
 
