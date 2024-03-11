@@ -1,16 +1,14 @@
 import numpy as np
 
 def descompunere_LU(epsilon, n, A):
-    for i in range(n):
-        for j in range(i):
-            if np.abs(A[j][j]) < epsilon:
+    for p in range(n):
+        for i in range(p, n):
+            A[i][p] = (A[i][p] - sum(A[i][k] * A[k][p] for k in range(p)))
+
+        for i in range(p+1, n):
+            if np.abs(A[i][i]) < epsilon:
                 raise ValueError("Error: Nu se poate efectua descompunerea LU")
-            A[i][j] = (A[i][j] - sum(A[i][k] * A[k][j] for k in range(j))) / A[j][j]
-
-        for j in range(i, n):
-            A[i][j] = (A[i][j] - sum(A[i][k] * A[k][j] for k in range(i)))
-
-    return A
+            A[p][i] = (A[p][i] - sum(A[p][k] * A[k][i] for k in range(p))) / A[p][p]
 
 
 def determinant_A(n, A):
@@ -18,6 +16,63 @@ def determinant_A(n, A):
     for i in range(n):
         det *= A[i][i]
     return det
+
+def substitutie_directa(A, b):
+    n = len(b)
+    x = np.zeros(n)
+
+    for i in range(n):
+        sum_val = 0
+        for j in range(i):
+            sum_val += A[i][j] * x[j]
+        x[i] = (b[i] - sum_val) / A[i][i]
+
+    return x
+
+def substitutie_inversa(A, b):
+    n = len(b)
+    x = np.zeros(n)
+
+    for i in range(n - 1, -1, -1):
+        sum_val = 0
+        for j in range(i + 1, n):
+            sum_val += A[i][j] * x[j]
+        x[i] = (b[i] - sum_val)
+
+    return x
+
+def calcul_norma(A_init, x_LU, b_init):
+    n = len(b_init)
+    norma = 0.0
+
+    for i in range(n):
+        suma = sum(A_init[i][j] * x_LU[j] for j in range(n))
+        norma += (suma - b_init[i]) ** 2
+
+    norma = norma ** 0.5
+    return norma
+
+def utilizare_biblioteca(A_init, b_init):
+    x_LU = np.linalg.solve(A_init, b_init)
+    A_lib = np.linalg.inv(A_init)
+    x_lib = np.dot(A_lib, b_init)
+    norma1 = np.linalg.norm(x_LU - x_lib, ord=2)
+    norma2 = np.linalg.norm(x_LU - np.dot(A_lib, b_init), ord=2)
+
+    print("Solutia sistemului Ax = b:")
+    print("x_LU:", x_LU)
+    print("x_lib:", x_lib)
+    print()
+
+    print("Inversa matricei A:")
+    print("A_lib:")
+    print(A_lib)
+    print()
+
+    print("Normele:")
+    print("||x_LU - x_lib||2:", norma1)
+    print("||x_LU - A_inv_lib b||2:", norma2)
+
 
 
 if __name__ == '__main__':
@@ -29,31 +84,26 @@ if __name__ == '__main__':
 
     epsilon = 10 ** (-t)
 
-    # Atest = np.array([[2.5, 2, 2], [5, 6, 5], [5, 6, 6.5]])
-    # btest = np.array([4, 10, 0])
-    # try:
-    #     L, U = descompunere_LU(epsilon, 3, Atest)
-    #     print(L)
-    #     print(U)
-    #     print(np.dot(L, U))
-    # except ValueError as e:
-    #     print(e)
-
     A_init = np.zeros((n, n))
-    for i in range(n):
-        for j in range(n):
-            A_init[i][j] = float(input(f"Introduceti valoarea elementului A[{i}][{j}]: "))
+    b_init = np.zeros(n)
+
+    if n < 10:
+        for i in range(n):
+            for j in range(n):
+                A_init[i][j] = float(input(f"Introduceti valoarea elementului A[{i}][{j}]: "))
+        for i in range(n):
+            b_init[i] = float(input(f"Introduceti valoarea elementului b[{i}]: "))
+    else:
+        for i in range(n):
+            for j in range(n):
+                A_init[i][j] = np.random.uniform(-100, 100)
+        b_init = np.random.uniform(-100, 100, n)
 
     A = A_init.copy()
-
-    b = np.zeros(n)
-    for i in range(n):
-        b[i] = float(input(f"Introduceti valoarea elementului b[{i}]: "))
-
     try:
-        res = descompunere_LU(epsilon, n, A)
+        descompunere_LU(epsilon, n, A)
         print("Matricea A:")
-        print(res)
+        print(A)
         print()
 
         print("Matricea L:")
@@ -82,6 +132,23 @@ if __name__ == '__main__':
 
         det = determinant_A(n, A)
         print(f"Determinantul matricei A este: {det}")
+
+        y = substitutie_directa(A, b_init)
+        x_LU = substitutie_inversa(A, y)
+
+        print("Solutia aproximativa x_LU:")
+        print(x_LU)
+
+        norma = calcul_norma(A_init, x_LU, b_init)
+        toleranta = 10 ** (-9)
+        print(f"Norma: {norma}")
+        if norma < toleranta:
+            print("Soluția este în limita toleranței.")
+        else:
+            print("Soluția NU este în limita toleranței.")
+
+        utilizare_biblioteca(A_init, b_init)
+
     except ValueError as e:
         print(e)
 
