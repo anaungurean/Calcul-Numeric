@@ -18,18 +18,23 @@ def qr_decomposition(A,b, epsilon=1e-10):
         if sigma <= epsilon:
             break # matricea A singulara
         k = np.sqrt(sigma)
-        if A[r][r] < 0:
+        if A[r][r] > 0: # ???
             k = -k
         beta = sigma - k * A[r][r]
         u = [0] * n
         u[r] = A[r][r] - k
         for i in range(r + 1, n):
             u[i] = A[i][r]
+
         # A = Pr * A
         for j in range(r, n):
             tau = sum(A[i][j] * u[i] for i in range(r, n)) / beta
             for i in range(r, n):
                 A[i][j] -= tau * u[i]
+
+        A[r][r] = k
+        for i in range(r + 1, n):
+            A[i][r] = 0  # nu i nevoie ca deja e transf
 
         # b = Pr * b
         tau = sum(b[i] * u[i] for i in range(r, n)) / beta
@@ -44,7 +49,7 @@ def qr_decomposition(A,b, epsilon=1e-10):
 
     R = np.array(A)
     Q = Q.T
-    return Q, R, b
+    return Q, R, b #b = Q.T * b
 
 def solve_linear_system_with_library(A_init, b_init):
     Q, R = np.linalg.qr(A_init)
@@ -79,17 +84,7 @@ def determin_errors(A_init, x_householder, x_QR, b_init,s):
     if norma4 < 10 ** (-6):
         print("Norma4:", norma4, " < 10^(-6)")
 
-def solve_upper_triangular(R, b):
-    n = len(b)
-    x = np.zeros(n)
 
-    for i in range(n - 1, -1, -1):
-        sum_term = 0
-        for j in range(i + 1, n):
-            sum_term += R[i, j] * x[j]
-        x[i] = (b[i] - sum_term) / R[i, i]
-
-    return x
 
 def determine_inv_A(A_init,Q,R):
     n = len(A_init)
@@ -100,7 +95,7 @@ def determine_inv_A(A_init,Q,R):
         ej[j] = 1.0
         b = np.dot(Q.T, ej)  # sau ej * Q.T pentru a lua linia j
 
-        x_star = solve_upper_triangular(R, b)
+        x_star = solve_linear_system(b, R)
         # print("Coloana", j, "din inversa matricei A:")
         # print(x_star)
         inv_A[:, j] = x_star
