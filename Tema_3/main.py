@@ -1,5 +1,5 @@
 import copy
-
+import streamlit as st
 import numpy as np
 
 def determine_vector_b(A, s):
@@ -10,10 +10,10 @@ def determine_vector_b(A, s):
             b[i] += s[j] * A[i][j]
     return b
 
-def qr_decomposition(A, epsilon=1e-10):
+def qr_decomposition(A,b, epsilon=1e-10):
     n = len(A)
     Q = np.eye(n)
-    for r in range(n - 1): # constrcutie matricea Pr, constanta beta, vectorul u
+    for r in range(n - 1): # constructie matricea Pr, constanta beta, vectorul u
         sigma = sum(A[i][r] ** 2 for i in range(r, n))
         if sigma <= epsilon:
             break # matricea A singulara
@@ -101,8 +101,8 @@ def determine_inv_A(A_init,Q,R):
         b = np.dot(Q.T, ej)  # sau ej * Q.T pentru a lua linia j
 
         x_star = solve_upper_triangular(R, b)
-        print("Coloana", j, "din inversa matricei A:")
-        print(x_star)
+        # print("Coloana", j, "din inversa matricei A:")
+        # print(x_star)
         inv_A[:, j] = x_star
 
     return inv_A
@@ -116,8 +116,6 @@ def check_if_singular(A):
         return True  # Matricea este singulară
     else:
         return False  # Matricea nu este singulară
-
-
 
 
 if __name__ == '__main__':
@@ -146,9 +144,9 @@ if __name__ == '__main__':
 
     print("Vectorul b:", b)
     print("-------------------")
-    Q, R,b = qr_decomposition(A)
+    Q, R,b = qr_decomposition(A,b)
     print("Descompunerea QR:")
-    print("Q =", Q.T)
+    print("Q =", Q)
     print("R =", R)
     print("-------------------")
 
