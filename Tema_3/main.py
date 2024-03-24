@@ -18,7 +18,7 @@ def qr_decomposition(A,b, epsilon=1e-10):
         if sigma <= epsilon:
             break # matricea A singulara
         k = np.sqrt(sigma)
-        if A[r][r] > 0: # ???
+        if A[r][r] > 0:
             k = -k
         beta = sigma - k * A[r][r]
         u = [0] * n
@@ -34,7 +34,7 @@ def qr_decomposition(A,b, epsilon=1e-10):
 
         A[r][r] = k
         for i in range(r + 1, n):
-            A[i][r] = 0  # nu i nevoie ca deja e transf
+            A[i][r] = 0
 
         # b = Pr * b
         tau = sum(b[i] * u[i] for i in range(r, n)) / beta
@@ -49,7 +49,7 @@ def qr_decomposition(A,b, epsilon=1e-10):
 
     R = np.array(A)
     Q = Q.T
-    return Q, R, b #b = Q.T * b
+    return Q, R, b
 
 def solve_linear_system_with_library(A_init, b_init):
     Q, R = np.linalg.qr(A_init)
@@ -116,8 +116,8 @@ def check_if_singular(A):
 if __name__ == '__main__':
 
     if (input("Do you want to use the default values? (y/n): ") == "y"):
-        A = [[0, 0, 4], [1, 2, 3], [0, 1, 2]]
-        s = [3, 2, 1]
+        A = [[0.2,0,0,0], [0, 0.5, 0,0], [0, 0, 1,0] ,[0,0,0,0.1]]
+        s = [3, 2, 1,2]
         epsilon = 0.1
     else:
         n = int(input("Introduceti dimensiunea n a datelor: "))
