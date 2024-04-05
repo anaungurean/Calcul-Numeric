@@ -62,7 +62,9 @@ def gauss_seidel(matrix_a, vector_b, dimension_a, epsilon=10 ** (-9), kmax=10000
                     upper_sum += value * old_xGS[j]
 
             xGS[i] = (vector_b[i] - lower_sum - upper_sum) / matrix_a.get(i, {}).get(i, 1)
-
+            # print("Iteratia", k)
+            # print(xGS)
+            print(calculate_norm(matrix_a, vector_b, xGS))
         delta_x = np.linalg.norm(xGS - old_xGS)
 
         if delta_x < epsilon or delta_x > 10**8:
@@ -185,7 +187,12 @@ if __name__ == '__main__':
             norm_inf = calculate_norm(sparse_matrix, vector, solution)
             print("Norma infinita:", norm_inf)
     else:
-        dimension_a, matrix_a, dimension_b, vector_b = read_data('a_1.txt', 'b_1.txt')
+        dimension_a, matrix_a, dimension_b, vector_b = read_data('a_5.txt', 'b_5.txt')
+        # print("Matricea A:", matrix_a)
+        # valori, ind_col, inceput_linii = sparse_matrix_representation(matrix_a)
+        # print("Valori:", valori)
+        # print("Indici coloane:", ind_col)
+        # print("Inceput linii:", inceput_linii)
         if check_diagonal_not_null(matrix_a, dimension_a) == 1:
             print("Matricea A are diagonala nenula")
         else:
